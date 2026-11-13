@@ -33,7 +33,31 @@ All validation numbers are out-of-fold: the 707 training frames are split into
 four folds by frame, and a frame is predicted by networks and by a selector that
 were fitted without it. Intervals are 95 % bootstrap intervals over frames.
 
-RESULTS_TABLE
+| | Frames | PQ [95 % interval] | DQ | SQ |
+|---|---|---|---|---|
+| **Out-of-fold, all training frames** | 707 | **0.453 [0.444, 0.462]** | 0.665 | 0.681 |
+| frames drawn by 1 annotator | 411 | 0.459 [0.447, 0.470] | 0.667 | 0.688 |
+| frames drawn by 2 annotators | 145 | 0.459 [0.441, 0.476] | 0.674 | 0.681 |
+| frames drawn by 3 annotators | 151 | 0.444 [0.428, 0.460] | 0.658 | 0.675 |
+| one annotator scored against the others | 296 | 0.340 [0.324, 0.356] | 0.536 | 0.634 |
+| **Public leaderboard (test set)** | | **0.39** | | |
+
+What each part contributes (out-of-fold PQ):
+
+| Variant | PQ |
+|---|---|
+| Connected components of the U-Net output (no detector) | 0.416 |
+| Detector masks (no U-Net) | 0.416 |
+| U-Net pixels inside each detection, one detector, one view | 0.441 |
+| + second detector and four mirror views | 0.447 |
+| + three probability cuts and the learned selector (**full method**) | 0.453 |
+| Oracle selection of the same candidates (upper bound) | 0.545 |
+
+On the 151 frames drawn by three annotators, one annotator predicts another's
+drawing with PQ 0.333, the filaments on which two annotators agree predict the
+third annotator's drawing with PQ 0.323, and this pipeline predicts it
+with PQ 0.444. The leaderboard score is consistently about 0.87 times the out-of-fold
+score, for every submission made with this pipeline.
 
 For orientation, scoring one annotator against the other annotators of the same
 frame gives PQ 0.340 on the training set: the annotators themselves disagree
@@ -106,7 +130,7 @@ or run [`notebooks/pipeline.ipynb`](notebooks/pipeline.ipynb) top to bottom, whi
 same and also shows every intermediate step, compares the rebuilt file with the
 submitted one, and recomputes the validation numbers. A GPU is needed.
 
-INFERENCE_TIME
+Inference on the 180 test frames takes 107 minutes on one RTX 3060 (12 GB). Rebuilt this way, the file matches the submitted one in all 1,164 instances (pixel-level agreement PQ 0.9998).
 
 ## Training from scratch
 
@@ -127,11 +151,33 @@ python scripts/08_evaluate.py --predictions outputs/candidates/main/oof_predicti
 Each training script trains on every frame outside fold `k`, then predicts fold
 `k` (out-of-fold) and the test set, so stages 4 to 8 need no GPU.
 
-TRAINING_COST
+| Network | Per fold, on one Tesla T4 |
+|---|---|
+| U-Net (`r34`), 12 000 iterations | 1.3 h |
+| Detector `m1536`, 80 epochs | 5.5 h |
+| Detector `s1280`, 60 epochs | 1.6 h |
+
+Four folds, so about 34 GPU-hours in total; stages 4 to 9 run on a CPU in under an hour.
+Folds 0 to 2 were trained on Kaggle (2 x T4), fold 3 on a local RTX 3060 with the same commands;
+see [`kaggle_sessions/README.md`](kaggle_sessions/README.md).
 
 ## What was tried and did not help
 
-NEGATIVE_RESULTS
+* **Snapping to whole connected components** of the U-Net output, and adding components that no
+  detection explains, as extra candidates: no gain for the selector (the option is still in
+  `CandidateParams.components`).
+* **A second U-Net** (ResNeXt-50 encoder) averaged with the first: +0.002 PQ, inside the noise;
+  left out to keep inference short.
+* **Shape post-processing** of the selected masks (filling holes, morphological closing, Gaussian
+  smoothing of the outline, dropping small fragments): between 0.000 and -0.003 PQ.
+* **Growing or shrinking the outline by one pixel**: 0.025 and
+  0.031 PQ lower. The U-Net boundary already sits at the optimum,
+  and this is how sensitive the metric is for objects ten pixels wide.
+* **Selection knobs** (overlap limit 0.1 to 0.5, value threshold 0.20 to 0.28, larger or smaller
+  trees): all within 0.001 PQ of each other.
+* **A CNN that re-scores each candidate from its image crop** (ResNet-18 on five channels: image,
+  flat field, U-Net probability, candidate mask, crop size), trained leave-one-fold-out and stacked with
+  the selector: +0.0005 PQ. The selector's features already carry what the crop shows.
 
 ## Licence and acknowledgements
 

@@ -41,6 +41,7 @@ def main() -> None:
              "lets PyTorch spill into system RAM, which slows training to a crawl)",
     )
     parser.add_argument("--resume", action="store_true", help="continue an interrupted training run")
+    parser.add_argument("--mask-ratio", type=int, default=2, help="down-sampling of the training masks")
     parser.add_argument("--skip-predict", action="store_true")
     parser.add_argument("--limit", type=int, default=None, help="predict only the first N frames (dry runs)")
     args = parser.parse_args()
@@ -66,6 +67,7 @@ def main() -> None:
             yaml_path, config.work_root() / "yolo_runs" / tag, weights=args.weights,
             imgsz=args.imgsz, epochs=args.epochs, batch=args.batch, device=device,
             seed=args.seed, workers=args.workers, cache=args.cache, resume=args.resume,
+            mask_ratio=args.mask_ratio,
         )
         checkpoint.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(last, checkpoint)

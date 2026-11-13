@@ -6,7 +6,8 @@ The predictions must be out-of-fold (stage 5 writes such a file), otherwise
 the numbers are meaningless. Reports, with the organisers' scoring rules:
 
 * PQ, DQ, SQ with a 95 % bootstrap interval (frames resampled 2000 times);
-* the same split by number of annotators and by GONG site;
+* the same split by number of annotators, by GONG site and by annotation group
+  (the first two digits of the annotator code; there the unit is one view);
 * on frames drawn by three annotators, how well the third annotator's drawing
   is predicted by one annotator, by the filaments on which the two other
   annotators agree, and by the method;
@@ -71,6 +72,7 @@ def main() -> None:
     fold_of = data.assign_folds(observations)
 
     per_frame, by_views, by_site, by_fold = [], defaultdict(list), defaultdict(list), defaultdict(list)
+    by_group = defaultdict(list)   # annotation group = first two digits of the annotator code
     ious, dices, per_drawing, per_prediction = [], [], [], []
     human = []
     # Frames drawn by three annotators: how well is the third annotator predicted by one
@@ -86,6 +88,8 @@ def main() -> None:
         by_site[observation.stem[-2:]].append(total)
         by_fold[fold_of[observation.stem]].append(total)
         view_rles = [view.rles() for view in observation.views]
+        for view, gt in zip(observation.views, view_rles):
+            by_group[view.view_id[:2]].append(metric.score_view(pred, gt))
         for gt in view_rles:
             if not gt:
                 per_prediction.extend([0] * len(pred))
@@ -131,6 +135,7 @@ def main() -> None:
         "by_number_of_annotators": {str(k): summarise(v) for k, v in sorted(by_views.items())},
         "by_site": {k: summarise(v) for k, v in sorted(by_site.items())},
         "by_fold": {str(k): summarise(v) for k, v in sorted(by_fold.items())},
+        "by_annotation_group": {k: summarise(v) for k, v in sorted(by_group.items())},
         "annotator_vs_annotator": summarise(human),
         "predicting_the_third_annotator": {name: summarise(frames) for name, frames in third.items()},
         "pairs": {

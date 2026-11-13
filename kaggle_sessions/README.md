@@ -30,6 +30,8 @@ Notes
 * On the 12 GB local card `m1536` needs `--gpu-fraction 0.97`: without a cap the
   Windows driver lets PyTorch spill into system RAM and training slows to a crawl.
   A few batches still exceed the card; `--resume` continues from the last epoch.
+  Fold 3's `m1536` stopped once at epoch 11 with an out-of-memory error and was resumed
+  from epoch 10; the 80 epochs took about 9 hours on the RTX 3060.
 * Detections were written with one test-time view by the Kaggle sessions and
   recomputed locally with four mirror views (`03_train_detector.py --fold k --name ...`
   skips training when the checkpoint exists and only predicts).

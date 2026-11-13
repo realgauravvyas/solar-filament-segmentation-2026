@@ -92,6 +92,7 @@ def train(
     workers: int = 4,
     cache: bool = False,
     resume: bool = False,
+    mask_ratio: int = 2,
 ) -> Path:
     """Fine-tune a COCO-pretrained YOLO11-seg model; returns the last-epoch weights.
 
@@ -100,7 +101,8 @@ def train(
     orientation in the image plane. The last epoch is used rather than the
     epoch with the best validation mAP, so the validation fold stays untouched
     for the later stages. With ``resume`` an interrupted run in ``out_dir`` is
-    continued instead of started again.
+    continued instead of started again. ``mask_ratio`` is the down-sampling of
+    the training masks (2 = half resolution); 4 halves the memory at 2048 px.
     """
     from ultralytics import YOLO
 
@@ -115,7 +117,7 @@ def train(
         data=str(data_yaml), imgsz=imgsz, epochs=epochs, batch=batch, device=device,
         project=str(out_dir.parent), name=out_dir.name, exist_ok=True, seed=seed,
         workers=workers, cache=cache, single_cls=True, flipud=0.5, fliplr=0.5, degrees=180.0,
-        scale=0.25, mosaic=1.0, close_mosaic=10, mask_ratio=2, overlap_mask=True,
+        scale=0.25, mosaic=1.0, close_mosaic=10, mask_ratio=mask_ratio, overlap_mask=True,
         cos_lr=True, patience=1000, plots=False, verbose=False, amp=True,
     )
     return out_dir / "weights" / "last.pt"
