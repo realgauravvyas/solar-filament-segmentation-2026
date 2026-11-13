@@ -149,6 +149,7 @@ def predict(
     """
     if model is None:
         model = load(weights)
+    _quiet_ultralytics()
     image = render(np.asarray(channels))
     use_half = str(device) != "cpu"
     views = []
@@ -176,6 +177,13 @@ def predict(
                 detections.append({"score": float(score), "rle": rle.encode(mask)})
         views.append(sorted(detections, key=lambda d: -d["score"]))
     return views
+
+
+def _quiet_ultralytics() -> None:
+    """Keep Ultralytics' per-call notices (e.g. argument deprecations) out of the logs."""
+    import logging
+
+    logging.getLogger("ultralytics").setLevel(logging.ERROR)
 
 
 def load(weights: Path):
