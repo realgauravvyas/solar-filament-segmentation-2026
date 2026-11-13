@@ -1,0 +1,34 @@
+{
+  "unets": {
+    "r34": [
+      "unet_r34_f0.pt",
+      "unet_r34_f1.pt",
+      "unet_r34_f2.pt"
+    ]
+  },
+  "detectors": {
+    "m1536": {
+      "imgsz": 1536,
+      "files": [
+        "det_m1536_f0.pt",
+        "det_m1536_f1.pt",
+        "det_m1536_f2.pt"
+      ]
+    },
+    "s1280": {
+      "imgsz": 1280,
+      "files": [
+        "det_s1280_f0.pt",
+        "det_s1280_f1.pt",
+        "det_s1280_f2.pt"
+      ]
+    }
+  },
+  "flips": 4,
+  "tta": 8,
+  "scorer": "scorer.txt",
+  "selection": {
+    "value_threshold": 0.24000000000000005,
+    "max_overlap": 0.25
+  }
+}
