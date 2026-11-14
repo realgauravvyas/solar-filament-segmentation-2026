@@ -146,6 +146,11 @@ python scripts/04_build_candidates.py --name main --unets r34 --detectors m1536 
 python scripts/05_fit_selector.py     --name main     # out-of-fold PQ, scorer, threshold
 python scripts/06_make_submission.py  --name main     # outputs/submissions/main.csv
 python scripts/08_evaluate.py --predictions outputs/candidates/main/oof_predictions.csv --out outputs/evaluation
+
+# optional analyses used in the report, and packaging of the release
+python scripts/09_ablation.py --unets r34 --detectors m1536 s1280     --predictions outputs/candidates/main/oof_predictions.csv --out outputs/evaluation/ablation.json
+python scripts/11_threshold_by_group.py --name main --out outputs/evaluation/threshold_by_group.json
+python scripts/10_package_release.py --name main --unets r34 --detectors m1536:1536 s1280:1280     --evaluation outputs/evaluation --ablation outputs/evaluation/ablation.json
 ```
 
 Each training script trains on every frame outside fold `k`, then predicts fold

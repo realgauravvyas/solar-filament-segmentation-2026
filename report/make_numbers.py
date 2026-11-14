@@ -2,8 +2,8 @@
 
     python report/make_numbers.py --public 0.40
 
-Reads ``results/metrics.json`` (stage 8), ``results/selection.json`` (stage 5)
-and ``results/ablation.json`` (stage 9); writes ``report/numbers.tex``,
+Reads ``results/metrics.json`` (stage 8), ``results/selection.json`` (stage 5),
+``results/ablation.json`` (stage 9) and ``results/threshold_by_group.json`` (stage 11); writes ``report/numbers.tex``,
 ``report/table_main.tex``, ``report/table_ablation.tex`` and ``report/table_sites.tex``.
 """
 
@@ -37,6 +37,7 @@ def main() -> None:
     metrics = json.load(open(results / "metrics.json"))
     selection = json.load(open(results / "selection.json"))
     ablation = json.load(open(results / "ablation.json"))
+    by_group = json.load(open(results / "threshold_by_group.json"))["groups"]
     overall, human = metrics["overall"], metrics["annotator_vs_annotator"]
     report = selection["report"]
 
@@ -68,6 +69,9 @@ def main() -> None:
         macro("inferenceGpu", args.inference_gpu),
         macro("pqOracle", f"{report['oracle']['pq']:.2f}"),
         macro("tauChosen", f"{selection['value_threshold']:.2f}"),
+        macro("tauGroupMin", f"{min(g['best_threshold'] for g in by_group.values()):.2f}"),
+        macro("tauGroupMax", f"{max(g['best_threshold'] for g in by_group.values()):.2f}"),
+        macro("tauGroupLoss", f"{max(g['loss'] for g in by_group.values()):.3f}"),
         macro("nFrames", str(len(observations))),
         macro("nViews", f"{n_views:,}".replace(",", "\\,")),
         macro("nDrawings", f"{n_drawings:,}".replace(",", "\\,")),
