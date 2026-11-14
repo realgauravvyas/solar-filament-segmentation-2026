@@ -164,6 +164,7 @@ python scripts/08_evaluate.py --predictions outputs/candidates/main/oof_predicti
 # optional analyses used in the report, and packaging of the release
 python scripts/09_ablation.py --unets r34 --detectors m1536 s1280     --predictions outputs/candidates/main/oof_predictions.csv --out outputs/evaluation/ablation.json
 python scripts/11_threshold_by_group.py --name main --out outputs/evaluation/threshold_by_group.json
+python scripts/12_compare_recipes.py --base main --others main_comp main_2048 --out outputs/evaluation/comparison.json
 python scripts/10_package_release.py --name main --unets r34 --detectors m1536:1536 s1280:1280     --evaluation outputs/evaluation --ablation outputs/evaluation/ablation.json
 ```
 
@@ -185,9 +186,7 @@ see [`kaggle_sessions/README.md`](kaggle_sessions/README.md).
 * **Whole connected components** of the U-Net output as extra candidates: -0.002 out-of-fold
   (95 % interval -0.005 to +0.001), +0.01 on the public leaderboard, i.e. a tie; released as the
   second configuration (`manifest_components.json`).
-* **A full-resolution detector** (YOLO11m-seg at 2048 px) as a third detector: -0.002 on the
-  held-out frames of fold 3 (0.452 against 0.454); it matched 78.0 % of the drawings with some
-  candidate against 77.7 % without it, so missed small filaments are not a detector-resolution problem.
+* **A full-resolution detector** (YOLO11m-seg at 2048 px, 45 epochs) as a third detector: out-of-fold PQ 0.455 against 0.453 (difference +0.002, 95 % interval -0.001 to +0.004, `results/comparison.json`). The interval includes zero, the variant adds 182 MB of weights and about 40 minutes of inference, and the share of drawings matched by some candidate only moves from 77.1 % to 77.5 %, so missed small filaments are not a detector-resolution problem. Not adopted.
 * **A second U-Net** (ResNeXt-50 encoder) averaged with the first: +0.002 PQ, inside the noise;
   left out to keep inference short.
 * **Shape post-processing** of the selected masks (filling holes, morphological closing, Gaussian

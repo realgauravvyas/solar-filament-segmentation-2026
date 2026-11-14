@@ -3,7 +3,8 @@
     python report/make_numbers.py --public 0.40
 
 Reads ``results/metrics.json`` (stage 8), ``results/selection.json`` (stage 5),
-``results/ablation.json`` (stage 9) and ``results/threshold_by_group.json`` (stage 11); writes ``report/numbers.tex``,
+``results/ablation.json`` (stage 9), ``results/threshold_by_group.json`` (stage 11)
+and ``results/comparison.json`` (stage 12); writes ``report/numbers.tex``,
 ``report/table_main.tex``, ``report/table_ablation.tex`` and ``report/table_sites.tex``.
 """
 
@@ -39,6 +40,8 @@ def main() -> None:
     selection = json.load(open(results / "selection.json"))
     ablation = json.load(open(results / "ablation.json"))
     by_group = json.load(open(results / "threshold_by_group.json"))["groups"]
+    comparison = json.load(open(results / "comparison.json"))["others"]
+    three = comparison["main_2048"]
     overall, human = metrics["overall"], metrics["annotator_vs_annotator"]
     report = selection["report"]
 
@@ -72,6 +75,10 @@ def main() -> None:
         macro("inferenceGpu", args.inference_gpu),
         macro("pqOracle", f"{report['oracle']['pq']:.2f}"),
         macro("tauChosen", f"{selection['value_threshold']:.2f}"),
+        macro("threeDetPQ", f"{three['pq']:.3f}"),
+        macro("threeDetGain", f"{three['difference']:.3f}"),
+        macro("threeDetLow", f"{three['ci95'][0]:+.3f}"),
+        macro("threeDetHigh", f"{three['ci95'][1]:+.3f}"),
         macro("tauGroupMin", f"{min(g['best_threshold'] for g in by_group.values()):.2f}"),
         macro("tauGroupMax", f"{max(g['best_threshold'] for g in by_group.values()):.2f}"),
         macro("tauGroupLoss", f"{max(g['loss'] for g in by_group.values()):.3f}"),
