@@ -1,0 +1,12 @@
+    \begin{tabular}{lc}
+        \toprule
+        Variant & PQ \\
+        \midrule
+        U-Net connected components (no detector) & 0.416 \\
+        Detector masks (no U-Net) & 0.416 \\
+        U-Net pixels in detections, one detector, one view & 0.441 \\
+        \quad + second detector and mirror views & 0.447 \\
+        \quad + three probability cuts and learned selector (full) & 0.453 \\
+        Oracle selection of the same candidates & 0.545 \\
+        \bottomrule
+    \end{tabular}
