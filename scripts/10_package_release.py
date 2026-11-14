@@ -20,6 +20,29 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from filaseg import config  # noqa: E402
 
 
+def release_variant(args, out: Path, weights: Path, results: Path) -> None:
+    """Add a second configuration that reuses the released networks with another selector."""
+    with open(weights / "manifest.json", encoding="utf-8") as handle:
+        manifest = json.load(handle)
+    recipe_dir = out / "candidates" / args.variant
+    with open(recipe_dir / "selection.json", encoding="utf-8") as handle:
+        selection = json.load(handle)
+    scorer_name = f"scorer_{args.variant_suffix}.json"
+    shutil.copyfile(recipe_dir / "scorer.json", weights / scorer_name)
+    manifest.update(
+        scorer=scorer_name, components=args.components,
+        selection={"value_threshold": selection["value_threshold"], "max_overlap": selection["max_overlap"]},
+    )
+    with open(weights / f"manifest_{args.variant_suffix}.json", "w", encoding="utf-8") as handle:
+        json.dump(manifest, handle, indent=2)
+    shutil.copyfile(recipe_dir / "selection.json", results / f"selection_{args.variant_suffix}.json")
+    shutil.copyfile(recipe_dir / "oof_predictions.csv", results / f"oof_predictions_{args.variant_suffix}.csv")
+    shutil.copyfile(out / "submissions" / f"{args.variant}.csv",
+                    results / f"final_submission_{args.variant_suffix}.csv")
+    print(f"released configuration manifest_{args.variant_suffix}.json")
+    print(json.dumps(manifest, indent=2))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("--name", required=True, help="recipe name used in stages 4-6")
@@ -30,10 +53,18 @@ def main() -> None:
     parser.add_argument("--tta", type=int, default=8)
     parser.add_argument("--evaluation", default=None, help="folder with metrics.json and figures (stage 8)")
     parser.add_argument("--ablation", default=None, help="ablation.json (stage 9)")
+    parser.add_argument("--variant", default=None,
+                        help="release only the selector of this recipe as an extra configuration\n"
+                             "(same networks), e.g. --variant main_comp --variant-suffix components")
+    parser.add_argument("--variant-suffix", default="variant")
+    parser.add_argument("--components", action="store_true", help="the variant uses component candidates")
     args = parser.parse_args()
 
     out = config.out_root()
     weights = config.REPO_ROOT / "weights"
+    if args.variant:
+        release_variant(args, out, weights, config.REPO_ROOT / "results")
+        return
     results = config.REPO_ROOT / "results"
     weights.mkdir(exist_ok=True)
     results.mkdir(exist_ok=True)

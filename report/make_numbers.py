@@ -26,6 +26,7 @@ def macro(name: str, value: str) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("--public", required=True, help="public leaderboard score of the final submission")
+    parser.add_argument("--public-components", default="0.40", help="public score of the components configuration")
     parser.add_argument("--inference-minutes", default="60", help="measured inference time on the test set")
     parser.add_argument("--inference-gpu", default="one Tesla T4", help="hardware of that measurement")
     parser.add_argument("--detectors", default=(
@@ -60,6 +61,8 @@ def main() -> None:
         macro("dqHuman", f"{human['dq']:.2f}"),
         macro("sqHuman", f"{human['sq']:.2f}"),
         macro("pqPublic", args.public),
+        macro("pqComp", f"{json.load(open(results / 'selection_components.json'))['report']['scorer']['pq']:.3f}"),
+        macro("pqCompPublic", args.public_components),
         macro("groupMin", f"{min(r['pq'] for r in metrics['by_annotation_group'].values()):.2f}"),
         macro("groupMax", f"{max(r['pq'] for r in metrics['by_annotation_group'].values()):.2f}"),
         macro("nGroups", str(len(metrics['by_annotation_group']))),

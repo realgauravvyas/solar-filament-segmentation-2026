@@ -47,12 +47,15 @@ def main() -> None:
     parser.add_argument("--subsets", nargs="+", default=["train", "test"])
     parser.add_argument("--flips", type=int, default=None, help="use only the first N detector views")
     parser.add_argument("--det-suffix", default="", help="read detections from det/<name>_f<k><suffix>/")
+    parser.add_argument("--components", action="store_true",
+                        help="also offer whole connected components of the U-Net foreground as candidates")
     parser.add_argument("--workers", type=int, default=4)
     args = parser.parse_args()
 
     recipe = pipeline.Recipe(
         unets=args.unets, detectors=args.detectors, folds=args.folds,
         flips=args.flips, det_suffix=args.det_suffix,
+        params=pipeline.cand.CandidateParams(components=args.components),
     )
     observations = data.load_observations()
     fold_of = data.assign_folds(observations)

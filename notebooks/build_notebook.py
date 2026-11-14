@@ -32,7 +32,8 @@ predictions from the weights stored in this repository; nothing is retrained**.
 2. Preprocessing: limb fit and flat-fielding
 3. The two networks on one frame: U-Net probability map and detector proposals
 4. Candidates and expected-PQ selection on that frame
-5. Full inference on the 180 test frames -> `submission.csv`, compared with the submitted file
+5. Full inference on the 180 test frames -> `submission.csv`, compared with the submitted files
+   (both final entries)
 6. Validation: out-of-fold Panoptic Quality, its uncertainty, and the organisers' diagnostic plots
 7. How the weights were trained
 
@@ -228,6 +229,24 @@ for stem in test_stems:
 print("rebuilt  :", sum(len(v) for v in rebuilt.values()), "instances")
 print("submitted:", sum(len(v) for v in submitted.values()), "instances")
 print("agreement (the submitted file used as ground truth):", agreement)
+""")
+
+md("""
+The second final entry uses the same networks and lets the selector also choose whole connected
+components of the U-Net output (`weights/manifest_components.json`). The network outputs computed above
+are reused, so this takes a few minutes.
+""")
+
+code("""
+out_csv_comp = config.out_root() / "submissions" / "submission_components.csv"
+print(json.dumps(reproduce.make_submission(WEIGHTS, out_csv_comp, device=DEVICE,
+                                           manifest_name="manifest_components.json"), indent=2))
+rebuilt_c = submission.read(out_csv_comp)
+submitted_c = submission.read(REPO / "results" / "final_submission_components.csv")
+agreement_c = metric.Totals()
+for stem in test_stems:
+    agreement_c = agreement_c + metric.score_view(rebuilt_c.get(stem, []), submitted_c.get(stem, []))
+print("second configuration, agreement with its submitted file:", agreement_c)
 """)
 
 md("""

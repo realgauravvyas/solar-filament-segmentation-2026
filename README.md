@@ -126,6 +126,20 @@ A different location can be given with the environment variable `FILASEG_DATA`
 python scripts/07_predict_test.py          # writes outputs/submissions/submission.csv
 ```
 
+Two configurations were submitted as final entries; both use the same networks and differ only in the
+candidates the selector may choose from:
+
+| Configuration | Candidates | Out-of-fold PQ | Public LB | Submitted file |
+|---|---|---|---|---|
+| `weights/manifest.json` | U-Net pixels inside each detection | 0.453 | 0.39 | `results/final_submission.csv` |
+| `weights/manifest_components.json` | the same + whole U-Net components | 0.451 | 0.40 | `results/final_submission_components.csv` |
+
+```bash
+python scripts/07_predict_test.py --manifest manifest_components.json --out outputs/submissions/components.csv
+```
+
+The network outputs are cached, so the second configuration costs only a few minutes after the first.
+
 or run [`notebooks/pipeline.ipynb`](notebooks/pipeline.ipynb) top to bottom, which does the
 same and also shows every intermediate step, compares the rebuilt file with the
 submitted one, and recomputes the validation numbers. A GPU is needed.
@@ -168,9 +182,12 @@ see [`kaggle_sessions/README.md`](kaggle_sessions/README.md).
 
 ## What was tried and did not help
 
-* **Snapping to whole connected components** of the U-Net output, and adding components that no
-  detection explains, as extra candidates: no gain for the selector (the option is still in
-  `CandidateParams.components`).
+* **Whole connected components** of the U-Net output as extra candidates: -0.002 out-of-fold
+  (95 % interval -0.005 to +0.001), +0.01 on the public leaderboard, i.e. a tie; released as the
+  second configuration (`manifest_components.json`).
+* **A full-resolution detector** (YOLO11m-seg at 2048 px) as a third detector: -0.002 on the
+  held-out frames of fold 3 (0.452 against 0.454); it matched 78.0 % of the drawings with some
+  candidate against 77.7 % without it, so missed small filaments are not a detector-resolution problem.
 * **A second U-Net** (ResNeXt-50 encoder) averaged with the first: +0.002 PQ, inside the noise;
   left out to keep inference short.
 * **Shape post-processing** of the selected masks (filling holes, morphological closing, Gaussian

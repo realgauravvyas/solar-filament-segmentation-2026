@@ -19,10 +19,11 @@ how many confident detections share the connected component it sits in?).
 ``selection.py`` decides which candidates are submitted.
 
 A second kind, ``component`` (one connected component of the U-Net
-foreground, i.e. the U-Net's own grouping), can be switched on with
+foreground, i.e. the U-Net's own grouping), is switched on with
 ``CandidateParams.components``. On their own, components score almost as
-well as claims, but offering both to the selector did not improve the
-held-out score, so the released pipeline leaves them off.
+well as claims; offering both to the selector gives the same held-out score
+within noise. The main released configuration leaves them off, the second
+one (``weights/manifest_components.json``) uses them.
 """
 
 from __future__ import annotations

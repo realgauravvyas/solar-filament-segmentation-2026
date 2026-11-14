@@ -21,10 +21,12 @@ def main() -> None:
     parser.add_argument("--weights", default=str(config.REPO_ROOT / "weights"))
     parser.add_argument("--out", default=None)
     parser.add_argument("--device", default="cuda:0")
+    parser.add_argument("--manifest", default="manifest.json",
+                        help="configuration inside --weights, e.g. manifest_components.json")
     args = parser.parse_args()
 
     out_csv = Path(args.out) if args.out else config.out_root() / "submissions" / "submission.csv"
-    stats = reproduce.make_submission(Path(args.weights), out_csv, device=args.device)
+    stats = reproduce.make_submission(Path(args.weights), out_csv, device=args.device, manifest_name=args.manifest)
     print(f"wrote {out_csv}")
     print(json.dumps(stats, indent=2))
 
