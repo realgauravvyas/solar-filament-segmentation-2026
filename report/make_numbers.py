@@ -27,11 +27,12 @@ def macro(name: str, value: str) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("--public", required=True, help="public leaderboard score of the final submission")
-    parser.add_argument("--public-components", default="0.40", help="public score of the components configuration")
+    parser.add_argument("--repro-instances", default="XX", help="instances matched when rebuilding from weights")
+    parser.add_argument("--repro-agreement", default="XX", help="pixel-level agreement PQ of that rebuild")
     parser.add_argument("--inference-minutes", default="60", help="measured inference time on the test set")
     parser.add_argument("--inference-gpu", default="one Tesla T4", help="hardware of that measurement")
     parser.add_argument("--detectors", default=(
-        "a YOLO11m-seg at $1536^2$ pixels (80 epochs) and a YOLO11s-seg at $1280^2$ pixels (60 epochs)"
+        "a YOLO11m-seg at $1536^2$ pixels (80 epochs), a YOLO11s-seg at $1280^2$ pixels (60 epochs) and a YOLO11m-seg at the native $2048^2$ pixels (45 epochs)"
     ))
     args = parser.parse_args()
 
@@ -64,8 +65,8 @@ def main() -> None:
         macro("dqHuman", f"{human['dq']:.2f}"),
         macro("sqHuman", f"{human['sq']:.2f}"),
         macro("pqPublic", args.public),
-        macro("pqComp", f"{json.load(open(results / 'selection_components.json'))['report']['scorer']['pq']:.3f}"),
-        macro("pqCompPublic", args.public_components),
+        macro("reproInstances", args.repro_instances),
+        macro("reproAgreement", args.repro_agreement),
         macro("groupMin", f"{min(r['pq'] for r in metrics['by_annotation_group'].values()):.2f}"),
         macro("groupMax", f"{max(r['pq'] for r in metrics['by_annotation_group'].values()):.2f}"),
         macro("nGroups", str(len(metrics['by_annotation_group']))),
@@ -96,7 +97,7 @@ def main() -> None:
             f"Connected components of the U-Net output, with no detector, reach "
             f"{ablation['unet_components']['pq']:.3f}, and the detector masks, with no U-Net, "
             f"{ablation['detector_masks']['pq']:.3f}; U-Net pixels grouped by one detector reach "
-            f"{ablation['claim_one_view']['pq']:.3f}. Fusing two detectors and four mirror views adds "
+            f"{ablation['claim_one_view']['pq']:.3f}. Fusing three detectors and four mirror views adds "
             f"{ablation['claim_fused']['pq'] - ablation['claim_one_view']['pq']:.3f}, and the three "
             f"probability cuts with the learned selector add a further "
             f"{full_pq - ablation['claim_fused']['pq']:.3f}."
@@ -138,7 +139,7 @@ def main() -> None:
         ("U-Net connected components (no detector)", ablation["unet_components"]["pq"]),
         ("Detector masks (no U-Net)", ablation["detector_masks"]["pq"]),
         ("U-Net pixels in detections, one detector, one view", ablation["claim_one_view"]["pq"]),
-        ("\\quad + second detector and mirror views", ablation["claim_fused"]["pq"]),
+        ("\\quad + two more detectors and four mirror views", ablation["claim_fused"]["pq"]),
         ("\\quad + three probability cuts and learned selector (full)", full_pq),
         ("Oracle selection of the same candidates", report["oracle"]["pq"]),
     ]

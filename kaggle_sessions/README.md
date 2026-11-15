@@ -1,6 +1,6 @@
 # How the networks were trained
 
-Folds 0, 1 and 2 were trained in Kaggle sessions (two Tesla T4 GPUs each), fold 3
+Folds 0, 1 and 2 of `r34`, `m1536` and `s1280` were trained in Kaggle sessions (two Tesla T4 GPUs each), fold 3
 on a local RTX 3060 (12 GB) with the same commands and settings.
 
 `build_kernel.py` turns the repository into a single-file Kaggle script
@@ -21,6 +21,7 @@ the session ends, and everything is written to `/kaggle/working/out`.
 | U-Net `r34` | `02_train_unet.py --fold k --name r34 --encoder resnet34 --iterations 12000 --batch-size 12` | 1.3 h |
 | Detector `m1536` | `03_train_detector.py --fold k --name m1536 --weights yolo11m-seg.pt --imgsz 1536 --epochs 80 --batch 2` | 5.5 h |
 | Detector `s1280` | `03_train_detector.py --fold k --name s1280 --weights yolo11s-seg.pt --imgsz 1280 --epochs 60 --batch 4` | 1.6 h |
+| Detector `m2048` | `03_train_detector.py --fold k --name m2048 --weights yolo11m-seg.pt --imgsz 2048 --epochs 45 --batch 1 --mask-ratio 4` | 5.2 h |
 
 Notes
 
@@ -38,3 +39,6 @@ Notes
 * The sessions also trained a second U-Net (ResNeXt-50 encoder). It improved the
   out-of-fold score by 0.002, which is inside the noise, and is not part of the
   released pipeline.
+* `m2048` was trained in two later Kaggle sessions (folds 0 and 1, folds 2 and 3, one fold per GPU), except
+  fold 3, whose copy comes from the local RTX 3060 run (4.7 h; both copies exist, the local one is released).
+  At 2048 px with the default mask resolution a single image needs 19.5 GB; `--mask-ratio 4` brings it to 7.4 GB.

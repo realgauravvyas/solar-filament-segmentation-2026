@@ -25,13 +25,22 @@
         "det_s1280_f2.pt",
         "det_s1280_f3.pt"
       ]
+    },
+    "m2048": {
+      "imgsz": 2048,
+      "files": [
+        "det_m2048_f0.pt",
+        "det_m2048_f1.pt",
+        "det_m2048_f2.pt",
+        "det_m2048_f3.pt"
+      ]
     }
   },
   "flips": 4,
   "tta": 8,
   "scorer": "scorer.json",
   "selection": {
-    "value_threshold": 0.24000000000000005,
+    "value_threshold": 0.26,
     "max_overlap": 0.25
   }
 }

@@ -32,8 +32,7 @@ predictions from the weights stored in this repository; nothing is retrained**.
 2. Preprocessing: limb fit and flat-fielding
 3. The two networks on one frame: U-Net probability map and detector proposals
 4. Candidates and expected-PQ selection on that frame
-5. Full inference on the 180 test frames -> `submission.csv`, compared with the submitted files
-   (both final entries)
+5. Full inference on the 180 test frames -> `submission.csv`, compared with the submitted file
 6. Validation: out-of-fold Panoptic Quality, its uncertainty, and the organisers' diagnostic plots
 7. How the weights were trained
 
@@ -130,7 +129,7 @@ md("""
 
 * **U-Net** (full resolution, 8 flips/rotations averaged): the probability that a pixel is
   filament. It gives accurate outlines but does not know which pixels belong together.
-* **YOLO11-seg detector** (whole disk at reduced resolution, 4 mirror views): instance
+* **YOLO11-seg detectors** (whole disk, 4 mirror views): instance
   proposals with a confidence. It groups pixels into filaments but its masks are coarse.
 """)
 
@@ -232,24 +231,6 @@ print("agreement (the submitted file used as ground truth):", agreement)
 """)
 
 md("""
-The second final entry uses the same networks and lets the selector also choose whole connected
-components of the U-Net output (`weights/manifest_components.json`). The network outputs computed above
-are reused, so this takes a few minutes.
-""")
-
-code("""
-out_csv_comp = config.out_root() / "submissions" / "submission_components.csv"
-print(json.dumps(reproduce.make_submission(WEIGHTS, out_csv_comp, device=DEVICE,
-                                           manifest_name="manifest_components.json"), indent=2))
-rebuilt_c = submission.read(out_csv_comp)
-submitted_c = submission.read(REPO / "results" / "final_submission_components.csv")
-agreement_c = metric.Totals()
-for stem in test_stems:
-    agreement_c = agreement_c + metric.score_view(rebuilt_c.get(stem, []), submitted_c.get(stem, []))
-print("second configuration, agreement with its submitted file:", agreement_c)
-""")
-
-md("""
 ## 6. Validation
 
 Everything in this section is **out-of-fold**: the training frames were split into four folds by
@@ -294,7 +275,8 @@ python scripts/01_preprocess.py
 python scripts/02_train_unet.py     --fold 0 --name r34   --encoder resnet34 --iterations 12000 --batch-size 12
 python scripts/03_train_detector.py --fold 0 --name m1536 --weights yolo11m-seg.pt --imgsz 1536 --epochs 80 --batch 2
 python scripts/03_train_detector.py --fold 0 --name s1280 --weights yolo11s-seg.pt --imgsz 1280 --epochs 60 --batch 4
-python scripts/04_build_candidates.py --name main --unets r34 --detectors m1536 s1280
+python scripts/03_train_detector.py --fold 0 --name m2048 --weights yolo11m-seg.pt --imgsz 2048 --epochs 45 --batch 1 --mask-ratio 4
+python scripts/04_build_candidates.py --name main --unets r34 --detectors m1536 s1280 m2048
 python scripts/05_fit_selector.py     --name main
 python scripts/06_make_submission.py  --name main
 ```
