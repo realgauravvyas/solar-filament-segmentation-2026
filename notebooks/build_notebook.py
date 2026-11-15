@@ -294,7 +294,7 @@ python scripts/01_preprocess.py
 python scripts/02_train_unet.py     --fold 0 --name r34   --encoder resnet34 --iterations 12000 --batch-size 12
 python scripts/03_train_detector.py --fold 0 --name m1536 --weights yolo11m-seg.pt --imgsz 1536 --epochs 80 --batch 2
 python scripts/03_train_detector.py --fold 0 --name s1280 --weights yolo11s-seg.pt --imgsz 1280 --epochs 60 --batch 4
-python scripts/04_build_candidates.py --name main --unets r34 --detectors m1536 s1280
+python scripts/04_build_candidates.py --name main_2048 --unets r34 --detectors m1536 s1280 m2048
 python scripts/05_fit_selector.py     --name main
 python scripts/06_make_submission.py  --name main
 ```

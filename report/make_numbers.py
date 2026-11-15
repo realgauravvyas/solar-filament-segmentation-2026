@@ -89,7 +89,7 @@ def main() -> None:
             f"Connected components of the U-Net output, with no detector, reach "
             f"{ablation['unet_components']['pq']:.3f}, and the detector masks, with no U-Net, "
             f"{ablation['detector_masks']['pq']:.3f}; U-Net pixels grouped by one detector reach "
-            f"{ablation['claim_one_view']['pq']:.3f}. Fusing two detectors and four mirror views adds "
+            f"{ablation['claim_one_view']['pq']:.3f}. Fusing three detectors and four mirror views adds "
             f"{ablation['claim_fused']['pq'] - ablation['claim_one_view']['pq']:.3f}, and the three "
             f"probability cuts with the learned selector add a further "
             f"{full_pq - ablation['claim_fused']['pq']:.3f}."
@@ -131,7 +131,7 @@ def main() -> None:
         ("U-Net connected components (no detector)", ablation["unet_components"]["pq"]),
         ("Detector masks (no U-Net)", ablation["detector_masks"]["pq"]),
         ("U-Net pixels in detections, one detector, one view", ablation["claim_one_view"]["pq"]),
-        ("\\quad + second detector and mirror views", ablation["claim_fused"]["pq"]),
+        ("\\quad + additional detectors and mirror views", ablation["claim_fused"]["pq"]),
         ("\\quad + three probability cuts and learned selector (full)", full_pq),
         ("Oracle selection of the same candidates", report["oracle"]["pq"]),
     ]
