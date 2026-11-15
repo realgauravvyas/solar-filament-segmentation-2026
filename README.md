@@ -3,6 +3,10 @@
 Solution to the [Solar Filament Segmentation Challenge 2026](https://www.kaggle.com/competitions/filament-segmentation-2026)
 (organized by the Earth-Space AI Research (ESAIR) Lab and sponsored by the NSF National Solar Observatory).
 
+![GONGH-alpha solar observations with filament segmentation examples](report/figures/examples.png)
+
+*Competition image source: [Solar Filament Segmentation Challenge 2026](https://www.kaggle.com/competitions/filament-segmentation-2026/data). The underlying H-alpha observations are from the Global Oscillation Network Group (GONG), obtained by the National Solar Observatory Integrated Synoptic Program (NSO/NISP). The montage is adapted for this project's report. See the [MAGFiLO dataset paper](https://doi.org/10.1038/s41597-024-03876-y) and the competition data page for dataset credits and terms. The underlying imagery is subject to its own terms.*
+
 Each frame is a 2048 x 2048 full-disk H-alpha image; the task is one mask per
 filament. Submissions are scored with Panoptic Quality (PQ) against every
 annotator's drawing of a frame: a predicted mask counts only if its IoU with a
