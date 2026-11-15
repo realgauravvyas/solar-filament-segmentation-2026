@@ -163,3 +163,7 @@ its COCO-pretrained YOLO11 weights; the U-Net uses
 with an ImageNet-pretrained encoder. Data: MAGFiLO (Ahmadzadeh et al., 2024,
 doi:10.1038/s41597-024-03876-y), GONG H-alpha observations from the NSO
 Integrated Synoptic Program.
+
+## AI assistance
+
+AI tools assisted with drafting the report and with developing and refining the solution.
