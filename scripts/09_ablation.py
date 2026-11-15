@@ -1,6 +1,6 @@
 """Stage 9 (optional): what does each component contribute?
 
-    python scripts/09_ablation.py --unets r34 --detectors m1536 s1280 --out results/ablation.json
+    python scripts/09_ablation.py --unets r34 --detectors m1536 s1280 m2048 --out results/ablation.json
 
 Scores four simpler pipelines on the held-out folds, with the same networks
 and the same scoring rules as the full method:

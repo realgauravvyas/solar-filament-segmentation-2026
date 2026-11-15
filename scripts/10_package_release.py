@@ -1,7 +1,7 @@
 """Stage 10: collect what the repository ships.
 
     python scripts/10_package_release.py --name main --unets r34 \\
-        --detectors m1536:1536 s1280:1280 --folds 0 1 2 3
+        --detectors m1536:1536 s1280:1280 m2048:2048 --folds 0 1 2 3
 
 Copies the trained checkpoints, the selector and its threshold into
 ``weights/`` and writes ``weights/manifest.json`` (read by

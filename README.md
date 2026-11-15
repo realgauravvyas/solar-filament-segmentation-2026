@@ -1,7 +1,7 @@
 # Solar filament instance segmentation in GONG H-alpha images
 
 Solution to the [Solar Filament Segmentation Challenge 2026](https://www.kaggle.com/competitions/filament-segmentation-2026)
-(IEEE BigData Cup 2026, sponsored by the NSF National Solar Observatory).
+(organized by the Earth-Space AI Research (ESAIR) Lab and sponsored by the NSF National Solar Observatory).
 
 Each frame is a 2048 x 2048 full-disk H-alpha image; the task is one mask per
 filament. Submissions are scored with Panoptic Quality (PQ) against every
