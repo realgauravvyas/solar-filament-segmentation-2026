@@ -3,6 +3,10 @@
 Solution to the [Solar Filament Segmentation Challenge 2026](https://www.kaggle.com/competitions/filament-segmentation-2026)
 (organized by the Earth-Space AI Research (ESAIR) Lab and sponsored by the NSF National Solar Observatory).
 
+![GONGH-alpha solar observations with filament segmentation examples](report/figures/examples.png)
+
+*Competition image source: [Solar Filament Segmentation Challenge 2026](https://www.kaggle.com/competitions/filament-segmentation-2026/data). The underlying H-alpha observations are from the Global Oscillation Network Group (GONG), obtained by the National Solar Observatory Integrated Synoptic Program (NSO/NISP). The montage is adapted for this project's report. See the [MAGFiLO dataset paper](https://doi.org/10.1038/s41597-024-03876-y) and the competition data page for dataset credits and terms. The underlying imagery is subject to its own terms.*
+
 Each frame is a 2048 x 2048 full-disk H-alpha image; the task is one mask per
 filament. Submissions are scored with Panoptic Quality (PQ) against every
 annotator's drawing of a frame: a predicted mask counts only if its IoU with a
@@ -26,6 +30,13 @@ No ground truth other than the competition's training annotations is used
 anywhere, and the test images are used for inference only.
 
 ![pipeline](report/figures/pipeline.png)
+
+## Judging entry
+
+**Kaggle submission 58355105** was uploaded as `main_2048.csv` and scored **0.40** on the public leaderboard. The [exact submitted predictions](results/final_submission.csv) are included here. Four-fold out-of-fold PQ was **0.455** (95% bootstrap interval **0.446 to 0.464**, 707 training frames).
+
+The release combines the ResNet-34 U-Net with YOLO11-seg detectors at 1280, 1536 and 2048 pixels. The report describes the training, inference and selection procedure.
+
 
 ## Results
 
@@ -206,3 +217,7 @@ its COCO-pretrained YOLO11 weights; the U-Net uses
 with an ImageNet-pretrained encoder. Data: MAGFiLO (Ahmadzadeh et al., 2024,
 doi:10.1038/s41597-024-03876-y), GONG H-alpha observations from the NSO
 Integrated Synoptic Program.
+
+## AI assistance
+
+AI tools assisted with drafting the report and with developing and refining the solution.

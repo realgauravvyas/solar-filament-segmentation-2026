@@ -35,10 +35,10 @@
 
 \author{Gaurav Vyas}
 \affiliation{%
-  \city{AUTHOR-CITY}
-  \country{AUTHOR-COUNTRY}
+  \city{Kannod, Madhya Pradesh}
+  \country{India}
 }
-\email{AUTHOR-EMAIL}
+\email{gaurav.vyas.1729@gmail.com}
 
 \begin{abstract}
     This report describes our solution to the Solar Filament Segmentation Challenge~2026, a Kaggle competition on automatic segmentation of solar filaments in GONG H-$\alpha$ observations. A U-Net working at full resolution decides which pixels are filament, YOLO11-seg detectors working on the whole disk decide which pixels belong to the same filament, and a gradient-boosted model keeps a candidate only when it is expected to raise Panoptic Quality (PQ), the competition metric. We derive that selection rule from the metric. On held-out training frames the pipeline reaches PQ~\pqAll{} (95\,\% interval \pqAllLow{}--\pqAllHigh{}); one annotator scored against the others reaches \pqHuman{}. The public leaderboard score is \pqPublic{}. Only the competition's training annotations were used.
@@ -145,7 +145,7 @@
     \textbf{Next steps.} A refinement network that redraws each instance given its group, trained on the annotators' polygons; using consecutive GONG frames, since filaments persist for days; and predicting a distribution over groupings so that the selection can trade a whole filament against its pieces explicitly.
 
 \subsection{Implementation and reproducibility}
-    The code, the trained weights and a notebook that rebuilds the submitted file without retraining are available at \url{REPOSITORY-URL}. Training one fold takes 1.3 hours for the U-Net and 5.5, 1.6 and 5.2 hours for the three detectors on one Tesla T4; the selector is fitted on a CPU in minutes. Inference on the 180 test frames takes \inferenceMinutes{} minutes on \inferenceGpu{}; rebuilt this way from the released weights, the submission matches the submitted file in all \reproInstances{} instances (pixel-level agreement PQ \reproAgreement{}, against 1 for identical files). Software: PyTorch 2.11, segmentation\_models\_pytorch 0.5, Ultralytics 8.4 and LightGBM 4.7; exact versions are pinned in \texttt{requirements.txt}. The fold assignment is a deterministic function of the annotation file; training is not bit-reproducible (random crops, GPU arithmetic), which is why the weights are released.
+    The code, the trained weights and a notebook that rebuilds the submitted file without retraining are available at \url{https://github.com/realgauravvyas/solar-filament-segmentation-2026}. Training one fold takes 1.3 hours for the U-Net and 5.5, 1.6 and 5.2 hours for the three detectors on one Tesla T4; the selector is fitted on a CPU in minutes. Inference on the 180 test frames takes \inferenceMinutes{} minutes on \inferenceGpu{}; rebuilt this way from the released weights, the submission matches the submitted file in all \reproInstances{} instances (pixel-level agreement PQ \reproAgreement{}, against 1 for identical files). Software: PyTorch 2.11, segmentation\_models\_pytorch 0.5, Ultralytics 8.4 and LightGBM 4.7; exact versions are pinned in \texttt{requirements.txt}. The fold assignment is a deterministic function of the annotation file; training is not bit-reproducible (random crops, GPU arithmetic), which is why the weights are released.
 
 %                                      %
 %            ACKNOWLEDGMENT            %
