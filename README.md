@@ -20,8 +20,8 @@ drawing exceeds 0.5.
 
 ## Method in one paragraph
 
-A U-Net working at full resolution says which pixels are filament. A YOLO11-seg
-detector looking at the whole disk says which pixels belong to the same filament
+A U-Net working at full resolution says which pixels are filament. Three YOLO11-seg
+detectors looking at the whole disk say which pixels belong to the same filament
 and how likely an annotator is to draw it. Each detection claims the U-Net pixels
 inside its mask, which gives candidate instances with accurate outlines. A small
 gradient-boosted model then predicts, for every candidate, the quantity that the
@@ -67,8 +67,8 @@ What each part contributes (out-of-fold PQ):
 On the 151 frames drawn by three annotators, one annotator predicts another's
 drawing with PQ 0.333, the filaments on which two annotators agree predict the
 third annotator's drawing with PQ 0.323, and this pipeline predicts it
-with PQ 0.447. The leaderboard score is consistently about 0.87 times the out-of-fold
-score, for every submission made with this pipeline.
+with PQ 0.447. The leaderboard score is 0.85 to 0.89 times the out-of-fold
+score for every submission made with this pipeline (the leaderboard shows two decimals).
 
 For orientation, scoring one annotator against the other annotators of the same
 frame gives PQ 0.340 on the training set: the annotators themselves disagree
@@ -141,7 +141,7 @@ Or run [`notebooks/pipeline.ipynb`](notebooks/pipeline.ipynb) top to bottom, whi
 same and also shows every intermediate step, compares the rebuilt file with the
 submitted one, and recomputes the validation numbers. A GPU is needed.
 
-Inference on the 180 test frames takes 155 minutes on one RTX 3060 (12 GB) that was shared with another job. Rebuilt this way, the file matches the submitted one in all 1,118 instances (pixel-level agreement PQ 0.9998)
+Inference on the 180 test frames takes 155 minutes on one RTX 3060 (12 GB) that was shared with another job. Rebuilt this way, the file matches the submitted one in all 1,118 instances (pixel-level agreement PQ 0.9998).
 
 ## Training from scratch
 
@@ -149,24 +149,24 @@ Inference on the 180 test frames takes 155 minutes on one RTX 3060 (12 GB) that 
 python scripts/01_preprocess.py                       # limb fit + flat-field, cached
 
 # for each fold k in 0..3
-python scripts/02_train_unet.py \
-    --fold k --name r34 --encoder resnet34 --iterations 12000 --batch-size 12
+python scripts/02_train_unet.py     --fold k --name r34 --encoder resnet34 --iterations 12000 --batch-size 12
 python scripts/03_train_detector.py --fold k --name m1536 --weights yolo11m-seg.pt --imgsz 1536 --epochs 80 --batch 2  # add --gpu-fraction 0.97 on a 12 GB card
 python scripts/03_train_detector.py --fold k --name s1280 --weights yolo11s-seg.pt --imgsz 1280 --epochs 60 --batch 4
 python scripts/03_train_detector.py --fold k --name m2048 --weights yolo11m-seg.pt --imgsz 2048 --epochs 45 --batch 1 --mask-ratio 4
 
-python scripts/04_build_candidates.py --name main --unets r34 --detectors m1536 s1280 m2048
-python scripts/05_fit_selector.py \
-    --name main     # out-of-fold PQ, scorer, threshold
-python scripts/06_make_submission.py  --name main     # outputs/submissions/main.csv
-python scripts/08_evaluate.py --predictions outputs/candidates/main/oof_predictions.csv --out outputs/evaluation
+# the released recipe is called main_2048
+python scripts/04_build_candidates.py --name main_2048 --unets r34 --detectors m1536 s1280 m2048
+python scripts/05_fit_selector.py     --name main_2048     # out-of-fold PQ, selector, threshold
+python scripts/06_make_submission.py  --name main_2048     # outputs/submissions/main_2048.csv
+python scripts/08_evaluate.py --predictions outputs/candidates/main_2048/oof_predictions.csv --out outputs/evaluation
 
 # optional analyses used in the report, and packaging of the release
 python scripts/09_ablation.py --unets r34 --detectors m1536 s1280 m2048 \
-    --predictions outputs/candidates/main/oof_predictions.csv --out outputs/evaluation/ablation.json
-python scripts/11_threshold_by_group.py --name main --out outputs/evaluation/threshold_by_group.json
-python scripts/12_compare_recipes.py --base main --others main_comp main_rx main_2048 --out outputs/evaluation/comparison.json
-python scripts/10_package_release.py --name main --unets r34 --detectors m1536:1536 s1280:1280 m2048:2048 \
+    --predictions outputs/candidates/main_2048/oof_predictions.csv --out outputs/evaluation/ablation.json
+python scripts/11_threshold_by_group.py --name main_2048 --out outputs/evaluation/threshold_by_group.json
+# "main" is the same recipe without the 2048 px detector (stages 4 and 5 with --detectors m1536 s1280)
+python scripts/12_compare_recipes.py --base main --others main_2048 --out outputs/evaluation/comparison.json
+python scripts/10_package_release.py --name main_2048 --unets r34 --detectors m1536:1536 s1280:1280 m2048:2048 \
     --evaluation outputs/evaluation --ablation outputs/evaluation/ablation.json
 ```
 
@@ -181,12 +181,12 @@ Each training script trains on every frame outside fold `k`, then predicts fold
 | Detector `m2048`, 45 epochs | 5.2 h |
 
 Four folds, so about 54 GPU-hours in total; stages 4 to 9 run on a CPU in under an hour.
-Folds 0 to 2 were trained on Kaggle (2 x T4), fold 3 on a local RTX 3060 with the same commands;
-see [`kaggle_sessions/README.md`](kaggle_sessions/README.md).
+Most runs were made on Kaggle (2 x T4) and the others on a local RTX 3060 with the same commands;
+[`kaggle_sessions/README.md`](kaggle_sessions/README.md) lists which.
 
 ## What else was tried
 
-* **A second, full-resolution detector family was kept although its gain is small**: adding the 2048 px
+* **The full-resolution detector was kept although its gain is small**: adding the 2048 px
   YOLO11m-seg to the two other detectors changes the out-of-fold PQ by +0.0018
   (95 % interval -0.0007 to +0.0042, `results/comparison.json`); the interval includes zero.
   It also scored higher on the public leaderboard (0.40 against 0.39 for the two-detector configuration), which is

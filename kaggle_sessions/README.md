@@ -1,7 +1,14 @@
 # How the networks were trained
 
-Folds 0, 1 and 2 of `r34`, `m1536` and `s1280` were trained in Kaggle sessions (two Tesla T4 GPUs each), fold 3
-on a local RTX 3060 (12 GB) with the same commands and settings.
+The networks were trained in Kaggle sessions (two Tesla T4 GPUs each) and, when the weekly Kaggle GPU quota
+ran out, on a local RTX 3060 (12 GB) with the same commands and settings:
+
+| Network | Kaggle (T4) | Local (RTX 3060) |
+|---|---|---|
+| U-Net `r34` | folds 0, 1, 2 | fold 3 |
+| Detector `m1536` | folds 0, 1, 2 | fold 3 |
+| Detector `s1280` | folds 1, 2 | folds 0, 3 |
+| Detector `m2048` | folds 0, 1, 2 | fold 3 |
 
 `build_kernel.py` turns the repository into a single-file Kaggle script
 (`kernel_template.py` with the code embedded as an archive) and pushes it:
@@ -33,11 +40,11 @@ Notes
   A few batches still exceed the card; `--resume` continues from the last epoch.
   Fold 3's `m1536` stopped once at epoch 11 with an out-of-memory error and was resumed
   from epoch 10; the 80 epochs took about 9 hours on the RTX 3060.
-* Detections were written with one test-time view by the Kaggle sessions and
+* Detections were written with one test-time view by the first Kaggle sessions and
   recomputed locally with four mirror views (`03_train_detector.py --fold k --name ...`
   skips training when the checkpoint exists and only predicts).
 * The sessions also trained a second U-Net (ResNeXt-50 encoder). It improved the
-  out-of-fold score by 0.002, which is inside the noise, and is not part of the
+  out-of-fold score by 0.001, which is inside the noise, and is not part of the
   released pipeline.
 * `m2048` was trained in two later Kaggle sessions (folds 0 and 1, folds 2 and 3, one fold per GPU), except
   fold 3, whose copy comes from the local RTX 3060 run (4.7 h; both copies exist, the local one is released).
