@@ -1,0 +1,5 @@
+# keep submission files byte-exact (no line-ending conversion)
+*.csv -text
+*.pdf binary
+*.pt binary
+*.png binary
